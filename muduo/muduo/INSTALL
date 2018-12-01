@@ -1,0 +1,26 @@
+1. apt install libboost-dev
+2. boilerplate.h ==> BoilerPlate.h
+   boilerplate.cc ==> BoilerPlate.cc
+
+3. 生成base.pro和net.pro,eg:
+	1.1. cmake . 
+	1.2. qmake
+	1.3. QMAKE_CXXFLAGS += -std=c++0x
+		 CONFIG += staticlib
+
+		 TEMPLATE = lib
+		 TARGET = muduo_base
+		 INCLUDEPATH += ../..
+		 DESTDIR = $$PWD/../../bin
+
+4. 生成muduo,eg:
+	1.1. cmake . 
+	1.2. qmake
+	1.3. TEMPLATE = subdirs
+
+		 SUBDIRS += \
+			 muduo/base \
+			 muduo/net
+
+
+
