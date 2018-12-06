@@ -24,6 +24,14 @@ const int kLargeBuffer = 4000*1000;
 template<int SIZE>
 class FixedBuffer : noncopyable
 {
+private:
+  ///> ???
+  void (*cookie_)();
+  ///> buffer pointer
+  char data_[SIZE];
+  ///> writeable pointer
+  char* cur_;
+
 public:
   FixedBuffer()
     : cur_(data_)
@@ -69,20 +77,22 @@ private:
   // Must be outline function for cookies.
   static void cookieStart();
   static void cookieEnd();
-
-  void (*cookie_)();
-  char data_[SIZE];
-  char* cur_;
 };
 
 }  // namespace detail
 
 class LogStream : noncopyable
 {
-  typedef LogStream self;
 public:
   typedef detail::FixedBuffer<detail::kSmallBuffer> Buffer;
 
+private:
+  typedef LogStream self;
+  static const int kMaxNumericSize = 32;
+  ///> small fixed buffer
+  Buffer buffer_;
+
+public:
   self& operator<<(bool v)
   {
     buffer_.append(v ? "1" : "0", 1);
@@ -162,24 +172,20 @@ private:
 
   template<typename T>
   void formatInteger(T);
-
-  Buffer buffer_;
-
-  static const int kMaxNumericSize = 32;
 };
 
 class Fmt // : noncopyable
 {
+private:
+  char buf_[32];
+  int length_;
+
 public:
   template<typename T>
   Fmt(const char* fmt, T val);
 
   const char* data() const { return buf_; }
   int length() const { return length_; }
-
-private:
-  char buf_[32];
-  int length_;
 };
 
 inline LogStream& operator<<(LogStream& s, const Fmt& fmt)

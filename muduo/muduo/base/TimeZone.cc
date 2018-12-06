@@ -21,6 +21,9 @@
 
 namespace muduo
 {
+
+const int kSecondsPerDay = 24*60*60;
+
 namespace detail
 {
 
@@ -82,7 +85,6 @@ inline void fillHMS(unsigned seconds, struct tm* utc)
 }
 
 }  // namespace detail
-const int kSecondsPerDay = 24*60*60;
 }  // namespace muduo
 
 using namespace muduo;
@@ -103,7 +105,10 @@ namespace detail
 
 class File : noncopyable
 {
- public:
+private:
+  FILE* fp_;
+
+public:
   File(const char* file)
     : fp_(::fopen(file, "rb"))
   {
@@ -145,9 +150,6 @@ class File : noncopyable
       throw logic_error("bad uint8_t data");
     return x;
   }
-
- private:
-  FILE* fp_;
 };
 
 bool readTimeZoneFile(const char* zonefile, struct TimeZone::Data* data)
@@ -231,10 +233,11 @@ const Localtime* findLocaltime(const TimeZone::Data& data, Transition sentry, Co
   }
   else
   {
-    vector<Transition>::const_iterator transI = lower_bound(data.transitions.begin(),
-                                                            data.transitions.end(),
-                                                            sentry,
-                                                            comp);
+    vector<Transition>::const_iterator transI
+        = lower_bound(data.transitions.begin(),
+                      data.transitions.end(),
+                      sentry,
+                      comp);
     if (transI != data.transitions.end())
     {
       if (!comp.equal(sentry, *transI))

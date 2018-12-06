@@ -31,15 +31,7 @@ class EventLoopThread : noncopyable
 public:
   typedef std::function<void(EventLoop*)> ThreadInitCallback;
 
-  EventLoopThread(const ThreadInitCallback& cb = ThreadInitCallback(),
-                  const string& name = string());
-  ~EventLoopThread();
-  EventLoop* startLoop();
-
 private:
-  ///> thread callback.
-  void threadFunc();
-
   ///> loop_ will will be created in thread_ thread.
   ///> the thread_ is a EventLoop thread.
   EventLoop* loop_ /*GUARDED_BY(mutex_)*/;
@@ -52,6 +44,16 @@ private:
   Condition cond_ /*GUARDED_BY(mutex_)*/;
   ///> thread initialization
   ThreadInitCallback callback_;
+
+public:
+  EventLoopThread(const ThreadInitCallback& cb = ThreadInitCallback(),
+                  const string& name = string());
+  ~EventLoopThread();
+  EventLoop* startLoop();
+
+private:
+  ///> thread callback.
+  void threadFunc();
 };
 
 }  // namespace net

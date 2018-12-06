@@ -14,6 +14,10 @@ namespace muduo
 
 class Exception : public std::exception
 {
+private:
+  string message_; ///< exception infos
+  string stack_; ///< thread stack infos
+
 public:
   Exception(string what);
   ~Exception() noexcept override = default;
@@ -29,10 +33,6 @@ public:
   {
     return stack_.c_str();
   }
-
-private:
-  string message_; ///< exception infos
-  string stack_; ///< thread stack infos
 };
 
 }  // namespace muduo

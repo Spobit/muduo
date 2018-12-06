@@ -29,9 +29,18 @@ class InetAddress;
 ///
 class Acceptor : noncopyable
 {
- public:
+public:
   typedef std::function<void (int sockfd, const InetAddress&)> NewConnectionCallback;
 
+private:
+  EventLoop* loop_;
+  Socket acceptSocket_;
+  Channel acceptChannel_;
+  NewConnectionCallback newConnectionCallback_;
+  bool listenning_;
+  int idleFd_;
+
+public:
   Acceptor(EventLoop* loop, const InetAddress& listenAddr, bool reuseport);
   ~Acceptor();
 
@@ -41,15 +50,8 @@ class Acceptor : noncopyable
   bool listenning() const { return listenning_; }
   void listen();
 
- private:
+private:
   void handleRead();
-
-  EventLoop* loop_;
-  Socket acceptSocket_;
-  Channel acceptChannel_;
-  NewConnectionCallback newConnectionCallback_;
-  bool listenning_;
-  int idleFd_;
 };
 
 }  // namespace net

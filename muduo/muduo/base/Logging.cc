@@ -69,10 +69,10 @@ const char* LogLevelName[Logger::NUM_LOG_LEVELS] =
 // helper class for known string length at compile time
 class T
 {
- public:
+public:
   T(const char* str, unsigned len)
     :str_(str),
-     len_(len)
+      len_(len)
   {
     assert(strlen(str) == len_);
   }
@@ -132,6 +132,8 @@ Logger::Impl::Impl(LogLevel level, int savedErrno, const SourceFile& file, int l
 
 void Logger::Impl::formatTime()
 {
+  static std::string s_strZone;
+
   int64_t microSecondsSinceEpoch = time_.microSecondsSinceEpoch();
   time_t seconds = static_cast<time_t>(microSecondsSinceEpoch / Timestamp::kMicroSecondsPerSecond);
   int microseconds = static_cast<int>(microSecondsSinceEpoch % Timestamp::kMicroSecondsPerSecond);
@@ -145,12 +147,21 @@ void Logger::Impl::formatTime()
     }
     else
     {
-      ::gmtime_r(&seconds, &tm_time); // FIXME TimeZone::fromUtcTime
+      ::localtime_r(&seconds, &tm_time);
+      //::gmtime_r(&seconds, &tm_time); // FIXME TimeZone::fromUtcTime
+      if ( __builtin_expect(0 == s_strZone.size(), 0) )
+      {
+        if (strlen(tm_time.tm_zone))
+        {
+          s_strZone = std::string(tm_time.tm_zone);
+
+        }
+      }
     }
 
     int len = snprintf(t_time, sizeof(t_time), "%4d%02d%02d %02d:%02d:%02d",
-        tm_time.tm_year + 1900, tm_time.tm_mon + 1, tm_time.tm_mday,
-        tm_time.tm_hour, tm_time.tm_min, tm_time.tm_sec);
+                       tm_time.tm_year + 1900, tm_time.tm_mon + 1, tm_time.tm_mday,
+                       tm_time.tm_hour, tm_time.tm_min, tm_time.tm_sec);
     assert(len == 17); (void)len;
   }
 
@@ -158,13 +169,13 @@ void Logger::Impl::formatTime()
   {
     Fmt us(".%06d ", microseconds);
     assert(us.length() == 8);
-    stream_ << T(t_time, 17) << T(us.data(), 8);
+    stream_ << T(s_strZone.c_str(), 4) << T(t_time, 17) << T(us.data(), 8);
   }
   else
   {
-    Fmt us(".%06dZ ", microseconds);
-    assert(us.length() == 9);
-    stream_ << T(t_time, 17) << T(us.data(), 9);
+    Fmt us(".%06d ", microseconds);
+    assert(us.length() == 8);
+    stream_ << T(s_strZone.c_str(), 4) << T(t_time, 17) << T(us.data(), 8);
   }
 }
 

@@ -21,7 +21,17 @@ class Thread : noncopyable
 {
 public:
   typedef std::function<void ()> ThreadFunc;
+private:
+  bool started_; ///< true if call pthread_create() successfully.
+  bool joined_; ///< true if call pthread_join().
+  pthread_t pthreadId_;
+  pid_t tid_; ///< tid of thread created
+  ThreadFunc func_; ///< thread callback
+  string name_; ///< thread string id
+  CountDownLatch latch_; ///> communication between owner thrd and thrd created.
+  static AtomicInt32 numCreated_; ///< count of thread created by Thread class.
 
+public:
   explicit Thread(ThreadFunc, const string& name = string());
   // FIXME: make it movable in C++11
   ~Thread();
@@ -38,15 +48,6 @@ public:
 
 private:
   void setDefaultName();
-
-  bool       started_; ///< true if call pthread_create() successfully.
-  bool       joined_; ///< true if call pthread_join().
-  pthread_t  pthreadId_;
-  pid_t      tid_; ///< tid of thread created
-  ThreadFunc func_; ///< thread callback
-  string     name_; ///< thread string id
-  CountDownLatch latch_; ///> communication between parent thread and thread created.
-  static AtomicInt32 numCreated_; ///< count of thread created by Thread class.
 };
 
 }  // namespace muduo

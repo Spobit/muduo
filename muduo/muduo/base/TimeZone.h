@@ -16,7 +16,12 @@ namespace muduo
 // TimeZone for 1970~2030
 class TimeZone : public muduo::copyable
 {
- public:
+public:
+  struct Data;
+private:
+  std::shared_ptr<Data> data_;
+
+public:
   explicit TimeZone(const char* zonefile);
   TimeZone(int eastOfUtc, const char* tzname);  // a fixed timezone
   TimeZone() = default;  // an invalid timezone
@@ -39,12 +44,6 @@ class TimeZone : public muduo::copyable
   // year in [1900..2500], month in [1..12], day in [1..31]
   static time_t fromUtcTime(int year, int month, int day,
                             int hour, int minute, int seconds);
-
-  struct Data;
-
- private:
-
-  std::shared_ptr<Data> data_;
 };
 
 }  // namespace muduo

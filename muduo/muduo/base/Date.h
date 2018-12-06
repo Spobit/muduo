@@ -25,6 +25,8 @@ class Date : public muduo::copyable
           // public boost::equality_comparable<Date>
 {
  public:
+  static const int kDaysPerWeek = 7;
+  static const int kJulianDayOf1970_01_01;
 
   struct YearMonthDay
   {
@@ -32,9 +34,6 @@ class Date : public muduo::copyable
     int month;  // [1..12]
     int day;  // [1..31]
   };
-
-  static const int kDaysPerWeek = 7;
-  static const int kJulianDayOf1970_01_01;
 
   ///
   /// Constucts an invalid Date.

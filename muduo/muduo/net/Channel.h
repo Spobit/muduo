@@ -50,6 +50,48 @@ public:
   typedef std::function<void()> EventCallback;
   typedef std::function<void(Timestamp)> ReadEventCallback;
 
+private:
+  static const int kNoneEvent/* = 0*/;
+  static const int kReadEvent/* = POLLIN | POLLPRI*/;
+  static const int kWriteEvent/* = POLLOUT*/;
+
+  ///> which EventLoop object hold the object.
+  EventLoop* loop_;
+  ///> socketfd
+  const int fd_;
+  ///> event flags which socketfd care
+  int events_;
+  ///> event flags returnd which socketfd events occur.
+  int revents_; // it's the received event types of epoll or poll
+  ///> index_ is used as record socketfd status.
+  /// const int kNew = -1;      will be add into epoll_wait()
+  /// const int kAdded = 1;     has been added into epoll_wait()
+  /// const int kDeleted = 2;   has been deleted in epoll_wait()
+  int index_; // used by Poller.
+  ///> ??? log POLLHUP event.
+  bool logHup_;
+
+  ///> Think from point of server:
+  ///   invoke at TcpConnection::connectEstablished(), tie_ holds the
+  ///   TcpConnection object who create the Channel objects.
+  std::weak_ptr<void> tie_;
+  ///> true when tie_ holds TcpConnection object.
+  bool tied_;
+  ///> handle event critital section flag.
+  bool eventHandling_;
+  ///> if socketfd is added to epoll for monitor evnets.
+  bool addedToLoop_;
+
+  ///> Aligned by TcpConnection::handleRead, see TcpConnection::TcpConnection().
+  ReadEventCallback readCallback_;
+  ///> Aligned by TcpConnection::handleWrite, see TcpConnection::TcpConnection().
+  EventCallback writeCallback_;
+  ///> Aligned by TcpConnection::handleClose, see TcpConnection::TcpConnection().
+  EventCallback closeCallback_;
+  ///> Aligned by TcpConnection::handleError, see TcpConnection::TcpConnection().
+  EventCallback errorCallback_;
+
+public:
   Channel(EventLoop* loop, int fd);
   ~Channel();
 
@@ -102,48 +144,6 @@ private:
   ///> add or mod socketfd event flags.
   void update();
   void handleEventWithGuard(Timestamp receiveTime);
-
-
-private:
-  static const int kNoneEvent/* = 0*/;
-  static const int kReadEvent/* = POLLIN | POLLPRI*/;
-  static const int kWriteEvent/* = POLLOUT*/;
-
-  ///> which EventLoop object hold the object.
-  EventLoop* loop_;
-  ///> socketfd
-  const int fd_;
-  ///> event flags which socketfd care
-  int events_;
-  ///> event flags returnd which socketfd events occur.
-  int revents_; // it's the received event types of epoll or poll
-  ///> index_ is used as record socketfd status.
-  /// const int kNew = -1;      will be add into epoll_wait()
-  /// const int kAdded = 1;     has been added into epoll_wait()
-  /// const int kDeleted = 2;   has been deleted in epoll_wait()
-  int index_; // used by Poller.
-  ///> ??? log POLLHUP event.
-  bool logHup_;
-
-  ///> Think from point of server:
-  ///   invoke at TcpConnection::connectEstablished(), tie_ holds the
-  ///   TcpConnection object who create the Channel objects.
-  std::weak_ptr<void> tie_;
-  ///> true when tie_ holds TcpConnection object.
-  bool tied_;
-  ///> handle event critital section flag.
-  bool eventHandling_;
-  ///> if socketfd is added to epoll for monitor evnets.
-  bool addedToLoop_;
-
-  ///> Aligned by TcpConnection::handleRead, see TcpConnection::TcpConnection().
-  ReadEventCallback readCallback_;
-  ///> Aligned by TcpConnection::handleWrite, see TcpConnection::TcpConnection().
-  EventCallback writeCallback_;
-  ///> Aligned by TcpConnection::handleClose, see TcpConnection::TcpConnection().
-  EventCallback closeCallback_;
-  ///> Aligned by TcpConnection::handleError, see TcpConnection::TcpConnection().
-  EventCallback errorCallback_;
 };
 
 }  // namespace net

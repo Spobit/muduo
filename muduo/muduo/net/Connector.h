@@ -39,9 +39,13 @@ class Connector : noncopyable,
 {
 public:
   typedef std::function<void (int sockfd)> NewConnectionCallback;
-
 private:
   enum States { kDisconnected, kConnecting, kConnected };
+
+private:
+  static const int kMaxRetryDelayMs = 30*1000;
+  static const int kInitRetryDelayMs = 500;
+
   EventLoop* loop_;
   InetAddress serverAddr_;
   bool connect_; // atomic
@@ -68,10 +72,7 @@ public:
 
   const InetAddress& serverAddress() const { return serverAddr_; }
 
-private:
-  static const int kMaxRetryDelayMs = 30*1000;
-  static const int kInitRetryDelayMs = 500;
-
+private:  
   void setState(States s) { state_ = s; }
   void startInLoop();
   void stopInLoop();

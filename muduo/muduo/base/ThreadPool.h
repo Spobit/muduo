@@ -38,7 +38,25 @@ class ThreadPool : noncopyable
 {
 public:
   typedef std::function<void ()> Task;
+private:
+  mutable MutexLock mutex_;
+  ///> task deque is not empty, the emphasis is on can do task.
+  Condition notEmpty_;
+  ///> task deque is not full, the emphasis is on can push task in deque.
+  Condition notFull_;
+  string name_; ///< specify threadPool-object-name string by user
+  ///> every thread who is in pool will call it before do tasks.
+  ///> if no thread in pool, pool will call it if it is not null pointer.
+  Task threadInitCallback_;
+  std::vector<std::unique_ptr<muduo::Thread>> threads_;
+  std::deque<Task> queue_; ///< tasks queue
+  ///> if is 0 or negative, queue is no restriction,
+  ///> otherelse, it mean max tasks count.
+  ///> why no use in constant?
+  size_t maxQueueSize_;
+  bool running_; ///< see start() and stop()
 
+public:
   explicit ThreadPool(const string& nameArg = string("ThreadPool"));
   ~ThreadPool();
 
@@ -69,23 +87,6 @@ private:
   void runInThread();
   ///> take a task from deque, maybe block.
   Task take();
-
-  mutable MutexLock mutex_;
-  ///> task deque is not empty, the emphasis is on can do task.
-  Condition notEmpty_;
-  ///> task deque is not full, the emphasis is on can push task in deque.
-  Condition notFull_;
-  string name_; ///< specify threadPool-object-name string by user
-  ///> every thread who is in pool will call it before do tasks.
-  ///> if no thread in pool, pool will call it if it is not null pointer.
-  Task threadInitCallback_;
-  std::vector<std::unique_ptr<muduo::Thread>> threads_;
-  std::deque<Task> queue_; ///< tasks queue
-  ///> if is 0 or negative, queue is no restriction,
-  ///> otherelse, it mean max tasks count.
-  ///> why no use in constant?
-  size_t maxQueueSize_;
-  bool running_; ///< see start() and stop()
 };
 
 }  // namespace muduo

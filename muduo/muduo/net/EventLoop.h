@@ -56,9 +56,9 @@ class TimerQueue;
  *    pendingFunctors_ and runInLoop (eventfd evnets) make it can do anyway
  *    task we specify, and keep run in thread of owner self.
  *    so, EventLoop can handle
- *    1) socketfd evnets
- *    2) eventfd evnets
- *    3) timerfd evnets
+ *      1) socketfd evnets
+ *      2) eventfd evnets
+ *      3) timerfd evnets
  *
  *    Channel is also a important class. because of it can determine owner
  *    indirectly (socket evnet is belong who), and then dispath these events.
@@ -66,9 +66,43 @@ class TimerQueue;
 
 class EventLoop : noncopyable
 {
- public:
+public:
   typedef std::function<void()> Functor;
+private:
+  typedef std::vector<Channel*> ChannelList;
 
+private:
+  bool looping_; /* atomic */ ///< if self start event loop.
+  std::atomic<bool> quit_; ///< if self will exit event loop.
+  bool eventHandling_; /* atomic */ ///< if it will handle event
+  ///> if it will call doPendingFunctors().
+  bool callingPendingFunctors_; /* atomic */
+  int64_t iteration_; ///< loop counter of loop()`s while content
+  const pid_t threadId_; ///<  id of thread that EventLoop object is birth.
+  ///> the timestamp of ::epoll_wait() returned.
+  Timestamp pollReturnTime_;
+  std::unique_ptr<Poller> poller_;
+
+  std::unique_ptr<TimerQueue> timerQueue_;
+
+  ///> channels actived by epoll, then will call suitable handler.
+  ChannelList activeChannels_;
+  Channel* currentActiveChannel_; ///< channel who is handling event.
+
+  ///> wakeupFd_ and pendingFunctors_ are combo to do task, they ensure
+  ///  doing task in object thread (IO thread).
+  int wakeupFd_; ///< eventfd file descriptor.
+  std::unique_ptr<Channel> wakeupChannel_; ///< eventfd chanel.
+  ///> pend event function pointers. see EventLoop::runInLoop().
+  ///> these tasks will be invoke in the thead of owner object. do not care
+  ///  invoke runInLoop() in which thread.
+  std::vector<Functor> pendingFunctors_ /*GUARDED_BY(mutex_)*/;
+
+  boost::any context_; ///> custom data.
+
+  mutable MutexLock mutex_;
+
+public:
   EventLoop();
   ~EventLoop();  // force out-line dtor, for std::unique_ptr members.
 
@@ -158,45 +192,12 @@ class EventLoop : noncopyable
   ///< one loop one thread
   static EventLoop* getEventLoopOfCurrentThread();
 
- private:
+private:
   void abortNotInLoopThread();
   void handleRead();  /* waked up */ ///< eventfd waked up
   void doPendingFunctors();
 
   void printActiveChannels() const; // DEBUG
-
-  typedef std::vector<Channel*> ChannelList;
-
-  bool looping_; /* atomic */ ///< if self start event loop.
-  std::atomic<bool> quit_; ///< if self will exit event loop.
-  bool eventHandling_; /* atomic */ ///< if it will handle event
-  ///> if it will call doPendingFunctors().
-  bool callingPendingFunctors_; /* atomic */
-  int64_t iteration_; ///< loop counter of loop()`s while content
-  const pid_t threadId_; ///<  id of thread that EventLoop object is birth.
-  ///> the timestamp of ::epoll_wait() returned.
-  Timestamp pollReturnTime_;
-  std::unique_ptr<Poller> poller_;
-  std::unique_ptr<TimerQueue> timerQueue_;
-  // unlike in TimerQueue, which is an internal class,
-  // we don't expose Channel to client.
-  std::unique_ptr<Channel> wakeupChannel_; ///< eventfd chanel.
-  boost::any context_;
-
-  // scratch variables
-   ///> channels actived by epoll, then will call suitable handler.
-  ChannelList activeChannels_;
-  Channel* currentActiveChannel_; ///< channel who is handling event.
-
-  ///> wakeupFd_ and pendingFunctors_ are combo to do task, they ensure
-  ///  doing task in object thread (IO thread).
-  int wakeupFd_; ///< eventfd file descriptor.
-  ///> pend event function pointers. see EventLoop::runInLoop().
-  ///> these tasks will be invoke in the thead of owner object. do not care
-  ///  invoke runInLoop() in which thread.
-  std::vector<Functor> pendingFunctors_ /*GUARDED_BY(mutex_)*/;
-
-  mutable MutexLock mutex_;
 };
 
 }  // namespace net
