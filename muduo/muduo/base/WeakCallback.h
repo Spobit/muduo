@@ -17,8 +17,11 @@ namespace muduo
 template<typename CLASS, typename... ARGS>
 class WeakCallback
 {
- public:
+private:
+ std::weak_ptr<CLASS> object_;
+ std::function<void (CLASS*, ARGS...)> function_;
 
+ public:
   WeakCallback(const std::weak_ptr<CLASS>& object,
                const std::function<void (CLASS*, ARGS...)>& function)
     : object_(object), function_(function)
@@ -39,11 +42,6 @@ class WeakCallback
     //   LOG_TRACE << "expired";
     // }
   }
-
- private:
-
-  std::weak_ptr<CLASS> object_;
-  std::function<void (CLASS*, ARGS...)> function_;
 };
 
 template<typename CLASS, typename... ARGS>
