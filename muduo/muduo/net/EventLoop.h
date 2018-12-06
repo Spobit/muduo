@@ -56,9 +56,9 @@ class TimerQueue;
  *    pendingFunctors_ and runInLoop (eventfd evnets) make it can do anyway
  *    task we specify, and keep run in thread of owner self.
  *    so, EventLoop can handle
- *      1) socketfd evnets
- *      2) eventfd evnets
- *      3) timerfd evnets
+ *      1) socketfd evnets (poll notify, channel-read invoke, do tasks )
+ *      2) eventfd evnets  (poll notify, channel-read invoke, do tasks in pendingFunctors_)
+ *      3) timerfd evnets  (poll notify, channel-read invoke, do exparition tasks )
  *
  *    Channel is also a important class. because of it can determine owner
  *    indirectly (socket evnet is belong who), and then dispath these events.

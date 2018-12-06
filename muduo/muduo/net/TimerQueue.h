@@ -112,7 +112,6 @@ private:
   ///> cancel timer set
   ActiveTimerSet cancelingTimers_;
 
-
 public:
   explicit TimerQueue(EventLoop* loop);
   ~TimerQueue();
