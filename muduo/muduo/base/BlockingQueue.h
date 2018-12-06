@@ -18,7 +18,12 @@ namespace muduo
 template<typename T>
 class BlockingQueue : noncopyable
 {
- public:
+private:
+  mutable MutexLock mutex_;
+  Condition         notEmpty_ GUARDED_BY(mutex_);
+  std::deque<T>     queue_ GUARDED_BY(mutex_);
+
+public:
   BlockingQueue()
     : mutex_(),
       notEmpty_(mutex_),
@@ -60,11 +65,6 @@ class BlockingQueue : noncopyable
     MutexLockGuard lock(mutex_);
     return queue_.size();
   }
-
- private:
-  mutable MutexLock mutex_;
-  Condition         notEmpty_ GUARDED_BY(mutex_);
-  std::deque<T>     queue_ GUARDED_BY(mutex_);
 };
 
 }  // namespace muduo

@@ -30,9 +30,17 @@ class Channel;
 /// This class doesn't own the Channel objects.
 class Poller : noncopyable
 {
- public:
+public:
   typedef std::vector<Channel*> ChannelList;
+protected:
+  typedef std::map<int, Channel*> ChannelMap;
 
+protected:
+  ChannelMap channels_;
+private:
+  EventLoop* ownerLoop_;
+
+public:
   Poller(EventLoop* loop);
   virtual ~Poller();
 
@@ -56,13 +64,6 @@ class Poller : noncopyable
   {
     ownerLoop_->assertInLoopThread();
   }
-
- protected:
-  typedef std::map<int, Channel*> ChannelMap;
-  ChannelMap channels_;
-
- private:
-  EventLoop* ownerLoop_;
 };
 
 }  // namespace net

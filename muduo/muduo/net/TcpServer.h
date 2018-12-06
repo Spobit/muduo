@@ -48,7 +48,7 @@ class EventLoopThreadPool;
  */
 class TcpServer : noncopyable
 {
- public:
+public:
   typedef std::function<void(EventLoop*)> ThreadInitCallback;
   enum Option
   {
@@ -56,6 +56,49 @@ class TcpServer : noncopyable
     kReusePort,
   };
 
+private:
+  EventLoop* loop_;  // the acceptor loop
+  ///> ip:port string of server.
+  const string ipPort_;
+  ///> server name string
+  const string name_;
+  ///> acceptor
+  std::unique_ptr<Acceptor> acceptor_; // avoid revealing Acceptor
+  ///> thread pool
+  std::shared_ptr<EventLoopThreadPool> threadPool_;
+  ///> TcpConnection object will invoke it. see TcpServer::newConnection().
+  ///> callback will be invoked when Acceptor has a new socket connetion.
+  ///>  1) EventLoop::loop()
+  ///>  2) Channel::handleEvent()
+  ///>  3) Channel::handleEventWithGuard()
+  ///>  4) Acceptor::handleRead()
+  ///>  5) void TcpServer::newConnection()
+  ///>  6) void TcpConnection::connectEstablished()
+  ///>  7) connectionCallback_()
+  ConnectionCallback connectionCallback_;
+  ///> TcpConnection object will invoke it. see TcpServer::newConnection().
+  ///> callback will be invoked when TcpConnection recv a new message.
+  ///>  1) EventLoop::loop()
+  ///>  2) Channel::handleEvent()
+  ///>  3) Channel::handleEventWithGuard()
+  ///>  4) TcpConnection::handleRead()
+  ///>  5) messageCallback_()
+  MessageCallback messageCallback_;
+  ///> TcpConnection object will invoke it. see TcpServer::newConnection().
+  ///> callback will be invoked when TcpConnection completely send a new message.
+  WriteCompleteCallback writeCompleteCallback_;
+  ///> threads of threadPool_ object will invoke it. see TcpServer::start().
+  ThreadInitCallback threadInitCallback_;
+  ///> if server is started. see TcpServer::start().
+  AtomicInt32 started_;
+  // always in loop thread
+  ///> next connection id, it`s as part of thread name string.
+  int nextConnId_;
+  typedef std::map<string, TcpConnectionPtr> ConnectionMap;
+  ///> TcpConnection class map
+  ConnectionMap connections_;
+
+public:
   //TcpServer(EventLoop* loop, const InetAddress& listenAddr);
   TcpServer(EventLoop* loop,
             const InetAddress& listenAddr,
@@ -105,55 +148,13 @@ class TcpServer : noncopyable
   void setWriteCompleteCallback(const WriteCompleteCallback& cb)
   { writeCompleteCallback_ = cb; }
 
- private:
+private:
   /// Not thread safe, but in loop
   void newConnection(int sockfd, const InetAddress& peerAddr);
   /// Thread safe.
   void removeConnection(const TcpConnectionPtr& conn);
   /// Not thread safe, but in loop
   void removeConnectionInLoop(const TcpConnectionPtr& conn);
-
-
-  EventLoop* loop_;  // the acceptor loop
-  ///> ip:port string of server.
-  const string ipPort_;
-  ///> server name string
-  const string name_;
-  ///> acceptor
-  std::unique_ptr<Acceptor> acceptor_; // avoid revealing Acceptor
-  ///> thread pool
-  std::shared_ptr<EventLoopThreadPool> threadPool_;
-  ///> TcpConnection object will invoke it. see TcpServer::newConnection().
-  ///> callback will be invoked when Acceptor has a new socket connetion.
-  ///>  1) EventLoop::loop()
-  ///>  2) Channel::handleEvent()
-  ///>  3) Channel::handleEventWithGuard()
-  ///>  4) Acceptor::handleRead()
-  ///>  5) void TcpServer::newConnection()
-  ///>  6) void TcpConnection::connectEstablished()
-  ///>  7) connectionCallback_()
-  ConnectionCallback connectionCallback_;
-  ///> TcpConnection object will invoke it. see TcpServer::newConnection().
-  ///> callback will be invoked when TcpConnection recv a new message.
-  ///>  1) EventLoop::loop()
-  ///>  2) Channel::handleEvent()
-  ///>  3) Channel::handleEventWithGuard()
-  ///>  4) TcpConnection::handleRead()
-  ///>  5) messageCallback_()
-  MessageCallback messageCallback_;
-  ///> TcpConnection object will invoke it. see TcpServer::newConnection().
-  ///> callback will be invoked when TcpConnection completely send a new message.
-  WriteCompleteCallback writeCompleteCallback_;
-  ///> threads of threadPool_ object will invoke it. see TcpServer::start().
-  ThreadInitCallback threadInitCallback_;
-  ///> if server is started. see TcpServer::start().
-  AtomicInt32 started_;
-  // always in loop thread
-  ///> next connection id, it`s as part of thread name string.
-  int nextConnId_;
-  typedef std::map<string, TcpConnectionPtr> ConnectionMap;
-  ///> TcpConnection class map
-  ConnectionMap connections_;
 };
 
 }  // namespace net

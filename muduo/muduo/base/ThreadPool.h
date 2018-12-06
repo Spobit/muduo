@@ -38,6 +38,7 @@ class ThreadPool : noncopyable
 {
 public:
   typedef std::function<void ()> Task;
+
 private:
   mutable MutexLock mutex_;
   ///> task deque is not empty, the emphasis is on can do task.

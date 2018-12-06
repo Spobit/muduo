@@ -15,6 +15,10 @@ namespace muduo
 
 class Condition : noncopyable
 {
+private:
+  MutexLock& mutex_;
+  pthread_cond_t pcond_;
+
 public:
   explicit Condition(MutexLock& mutex)
     : mutex_(mutex)
@@ -45,10 +49,6 @@ public:
   {
     MCHECK(pthread_cond_broadcast(&pcond_));
   }
-
-private:
-  MutexLock& mutex_;
-  pthread_cond_t pcond_;
 };
 
 }  // namespace muduo

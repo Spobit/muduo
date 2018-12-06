@@ -14,7 +14,12 @@ namespace net
 // FIXME: finish this
 class ZlibInputStream : noncopyable
 {
- public:
+private:
+  Buffer* output_;
+  z_stream zstream_;
+  int zerror_;
+
+public:
   explicit ZlibInputStream(Buffer* output)
     : output_(output),
       zerror_(Z_OK)
@@ -31,20 +36,22 @@ class ZlibInputStream : noncopyable
   bool write(StringPiece buf);
   bool write(Buffer* input);
   bool finish();
-    // inflateEnd(&zstream_);
+  // inflateEnd(&zstream_);
 
- private:
+private:
   int decompress(int flush);
-
-  Buffer* output_;
-  z_stream zstream_;
-  int zerror_;
 };
 
 // input is uncompressed data, output zlib compressed data
 class ZlibOutputStream : noncopyable
 {
- public:
+private:
+  Buffer* output_;
+  z_stream zstream_;
+  int zerror_;
+  int bufferSize_;
+
+public:
   explicit ZlibOutputStream(Buffer* output)
     : output_(output),
       zerror_(Z_OK),
@@ -120,7 +127,7 @@ class ZlibOutputStream : noncopyable
     return ok;
   }
 
- private:
+private:
   int compress(int flush)
   {
     output_->ensureWritableBytes(bufferSize_);
@@ -134,11 +141,6 @@ class ZlibOutputStream : noncopyable
     }
     return error;
   }
-
-  Buffer* output_;
-  z_stream zstream_;
-  int zerror_;
-  int bufferSize_;
 };
 
 }  // namespace net

@@ -25,6 +25,12 @@ class Timer;
 ///
 class TimerId : public muduo::copyable
 {
+  friend class TimerQueue;
+
+private:
+  Timer* timer_;
+  int64_t sequence_;
+
 public:
   TimerId()
     : timer_(NULL),
@@ -39,12 +45,6 @@ public:
   }
 
   // default copy-ctor, dtor and assignment are okay
-
-  friend class TimerQueue;
-
-private:
-  Timer* timer_;
-  int64_t sequence_;
 };
 
 }  // namespace net

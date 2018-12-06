@@ -29,6 +29,9 @@ namespace muduo
 template<typename T>
 class ThreadLocal : noncopyable
 {
+private:
+  pthread_key_t pkey_;
+
 public:
   ThreadLocal()
   {
@@ -57,7 +60,6 @@ public:
   }
 
 private:
-
   static void destructor(void *x)
   {
     T* obj = static_cast<T*>(x);
@@ -65,9 +67,6 @@ private:
     T_must_be_complete_type dummy; (void) dummy;
     delete obj;
   }
-
-private:
-  pthread_key_t pkey_;
 };
 
 }  // namespace muduo

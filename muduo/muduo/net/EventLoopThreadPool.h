@@ -29,9 +29,24 @@ class EventLoopThread;
 
 class EventLoopThreadPool : noncopyable
 {
- public:
+public:
   typedef std::function<void(EventLoop*)> ThreadInitCallback;
 
+private:
+  ///> EventLoop object that hold the EventLoopThreadPool object.
+  EventLoop* baseLoop_;
+  string name_;
+  bool started_;
+  ///> counter of new EventLoopThread.
+  int numThreads_;
+  ///> combine EventLoopThread name string, and the next_ is mutable part.
+  int next_;
+  ///> EventLoopThread objects that represent new loop threas.
+  std::vector<std::unique_ptr<EventLoopThread>> threads_;
+  ///> EventLoop objects belong new loop threads.
+  std::vector<EventLoop*> loops_;
+
+public:
   EventLoopThreadPool(EventLoop* baseLoop, const string& nameArg);
   ~EventLoopThreadPool();
   ///> set new EventLoopThread counter.
@@ -49,25 +64,9 @@ class EventLoopThreadPool : noncopyable
   ///> if has new loop threads, return; else return baseLoop_.
   std::vector<EventLoop*> getAllLoops();
 
-  bool started() const
-  { return started_; }
+  bool started() const { return started_; }
 
-  const string& name() const
-  { return name_; }
-
- private:
-  ///> EventLoop object that hold the EventLoopThreadPool object.
-  EventLoop* baseLoop_;
-  string name_;
-  bool started_;
-  ///> counter of new EventLoopThread.
-  int numThreads_;
-  ///> combine EventLoopThread name string, and the next_ is mutable part.
-  int next_;
-  ///> EventLoopThread objects that represent new loop threas.
-  std::vector<std::unique_ptr<EventLoopThread>> threads_;
-  ///> EventLoop objects belong new loop threads.
-  std::vector<EventLoop*> loops_;
+  const string& name() const { return name_; }
 };
 
 }  // namespace net

@@ -18,7 +18,10 @@ namespace detail
 template<typename T>
 class AtomicIntegerT : noncopyable
 {
- public:
+private:
+  volatile T value_;
+
+public:
   AtomicIntegerT()
     : value_(0)
   {
@@ -83,9 +86,6 @@ class AtomicIntegerT : noncopyable
     // in gcc >= 4.7: __atomic_exchange_n(&value, newValue, __ATOMIC_SEQ_CST)
     return __sync_lock_test_and_set(&value_, newValue);
   }
-
- private:
-  volatile T value_;
 };
 }  // namespace detail
 

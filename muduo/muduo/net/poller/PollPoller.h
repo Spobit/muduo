@@ -27,8 +27,13 @@ namespace net
 ///
 class PollPoller : public Poller
 {
- public:
+private:
+  typedef std::vector<struct pollfd> PollFdList;
 
+private:
+  PollFdList pollfds_;
+
+public:
   PollPoller(EventLoop* loop);
   ~PollPoller() override;
 
@@ -36,12 +41,8 @@ class PollPoller : public Poller
   void updateChannel(Channel* channel) override;
   void removeChannel(Channel* channel) override;
 
- private:
-  void fillActiveChannels(int numEvents,
-                          ChannelList* activeChannels) const;
-
-  typedef std::vector<struct pollfd> PollFdList;
-  PollFdList pollfds_;
+private:
+  void fillActiveChannels(int numEvents, ChannelList* activeChannels) const;
 };
 
 }  // namespace net

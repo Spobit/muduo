@@ -31,6 +31,13 @@ const struct sockaddr* sockaddr_cast(const struct sockaddr_in6* addr);
 /// This is an POD interface class.
 class InetAddress : public muduo::copyable
 {
+private:
+  union
+  {
+    struct sockaddr_in addr_;
+    struct sockaddr_in6 addr6_;
+  };
+
 public:
   /// Constructs an endpoint with given port number.
   /// Mostly used in TcpServer listening.
@@ -69,13 +76,6 @@ public:
   // thread safe
   static bool resolve(StringArg hostname, InetAddress* result);
   // static std::vector<InetAddress> resolveAll(const char* hostname, uint16_t port = 0);
-
-private:
-  union
-  {
-    struct sockaddr_in addr_;
-    struct sockaddr_in6 addr6_;
-  };
 };
 
 }  // namespace net

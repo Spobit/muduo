@@ -18,7 +18,13 @@ namespace muduo
 template<typename T>
 class BoundedBlockingQueue : noncopyable
 {
- public:
+private:
+  mutable MutexLock          mutex_;
+  Condition                  notEmpty_ GUARDED_BY(mutex_);
+  Condition                  notFull_ GUARDED_BY(mutex_);
+  boost::circular_buffer<T>  queue_ GUARDED_BY(mutex_);
+
+public:
   explicit BoundedBlockingQueue(int maxSize)
     : mutex_(),
       notEmpty_(mutex_),
@@ -76,12 +82,6 @@ class BoundedBlockingQueue : noncopyable
     MutexLockGuard lock(mutex_);
     return queue_.capacity();
   }
-
- private:
-  mutable MutexLock          mutex_;
-  Condition                  notEmpty_ GUARDED_BY(mutex_);
-  Condition                  notFull_ GUARDED_BY(mutex_);
-  boost::circular_buffer<T>  queue_ GUARDED_BY(mutex_);
 };
 
 }  // namespace muduo

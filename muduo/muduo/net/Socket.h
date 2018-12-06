@@ -33,6 +33,9 @@ class InetAddress;
 /// It's thread safe, all operations are delagated to OS.
 class Socket : noncopyable
 {
+private:
+  const int sockfd_;
+
 public:
   explicit Socket(int sockfd)
     : sockfd_(sockfd)
@@ -78,9 +81,6 @@ public:
   /// Enable/disable SO_KEEPALIVE
   ///
   void setKeepAlive(bool on);
-
-private:
-  const int sockfd_;
 };
 
 }  // namespace net

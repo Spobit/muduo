@@ -133,6 +133,12 @@ namespace muduo
  */
 class /*CAPABILITY("mutex")*/ MutexLock : noncopyable
 {
+  friend class Condition;
+
+private:
+  pthread_mutex_t mutex_;
+  pid_t holder_;
+
 public:
   MutexLock()
     : holder_(0)
@@ -177,10 +183,11 @@ public:
   }
 
 private:
-  friend class Condition;
-
   class UnassignGuard : noncopyable
   {
+  private:
+    MutexLock& owner_;
+
   public:
     explicit UnassignGuard(MutexLock& owner)
       : owner_(owner)
@@ -192,9 +199,6 @@ private:
     {
       owner_.assignHolder();
     }
-
-  private:
-    MutexLock& owner_;
   };
 
   void unassignHolder()
@@ -206,9 +210,6 @@ private:
   {
     holder_ = CurrentThread::tid();
   }
-
-  pthread_mutex_t mutex_;
-  pid_t holder_;
 };
 
 // Use as a stack variable, eg.
@@ -219,6 +220,9 @@ private:
 // }
 class SCOPED_CAPABILITY MutexLockGuard : noncopyable
 {
+private:
+  MutexLock& mutex_;
+
 public:
   explicit MutexLockGuard(MutexLock& mutex) ACQUIRE(mutex)
     : mutex_(mutex)
@@ -230,10 +234,6 @@ public:
   {
     mutex_.unlock();
   }
-
-private:
-
-  MutexLock& mutex_;
 };
 
 }  // namespace muduo

@@ -21,10 +21,15 @@ namespace muduo
 /// It's recommended to pass it by value, since it's passed in register on x64.
 ///
 class Timestamp : public muduo::copyable,
-                  public boost::equality_comparable<Timestamp>,
-                  public boost::less_than_comparable<Timestamp>
+    public boost::equality_comparable<Timestamp>,
+    public boost::less_than_comparable<Timestamp>
 {
- public:
+public:
+  static const int kMicroSecondsPerSecond = 1000 * 1000;
+private:
+  int64_t microSecondsSinceEpoch_;
+
+public:
   ///
   /// Constucts an invalid Timestamp.
   ///
@@ -77,11 +82,6 @@ class Timestamp : public muduo::copyable,
   {
     return Timestamp(static_cast<int64_t>(t) * kMicroSecondsPerSecond + microseconds);
   }
-
-  static const int kMicroSecondsPerSecond = 1000 * 1000;
-
- private:
-  int64_t microSecondsSinceEpoch_;
 };
 
 inline bool operator<(Timestamp lhs, Timestamp rhs)

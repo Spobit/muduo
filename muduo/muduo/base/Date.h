@@ -21,13 +21,10 @@ namespace muduo
 /// It's recommended to pass it by value, since it's passed in register on x64.
 ///
 class Date : public muduo::copyable
-          // public boost::less_than_comparable<Date>,
-          // public boost::equality_comparable<Date>
+    // public boost::less_than_comparable<Date>,
+    // public boost::equality_comparable<Date>
 {
- public:
-  static const int kDaysPerWeek = 7;
-  static const int kJulianDayOf1970_01_01;
-
+public:
   struct YearMonthDay
   {
     int year; // [1900..2500]
@@ -35,9 +32,13 @@ class Date : public muduo::copyable
     int day;  // [1..31]
   };
 
-  ///
-  /// Constucts an invalid Date.
-  ///
+public:
+  static const int kDaysPerWeek = 7;
+  static const int kJulianDayOf1970_01_01;
+private:
+  int julianDayNumber_;
+
+public:
   Date()
     : julianDayNumber_(0)
   {}
@@ -98,9 +99,6 @@ class Date : public muduo::copyable
   }
 
   int julianDayNumber() const { return julianDayNumber_; }
-
- private:
-  int julianDayNumber_;
 };
 
 inline bool operator<(Date x, Date y)
