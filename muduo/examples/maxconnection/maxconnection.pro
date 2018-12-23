@@ -8,6 +8,7 @@ QMAKE_CXXFLAGS += -std=c++0x
 TEMPLATE = app
 TARGET = max_connection
 DESTDIR = $$PWD/../../bin
+INCLUDEPATH += ../..
 
 LIBS += -lmuduo_base -lmuduo_net -L$$PWD/../../bin
 

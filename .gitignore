@@ -1,2 +1,7 @@
 *.swp
 compile_commands.json
+
+*.user
+bin
+build-muduo-Desktop-Debug
+build-muduo-Desktop-Debug
