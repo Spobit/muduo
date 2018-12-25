@@ -44,16 +44,15 @@ class Buffer : public muduo::copyable
 public:
   static const size_t kCheapPrepend = 8;
   static const size_t kInitialSize = 1024;
+private:
+  static const char kCRLF[]/* = "\r\n"*/;
 
 private:
   std::vector<char> buffer_;
   size_t readerIndex_;
   size_t writerIndex_;
 
-  static const char kCRLF[]/* = "\r\n"*/;
-
 public:
-
   explicit Buffer(size_t initialSize = kInitialSize)
     : buffer_(kCheapPrepend + initialSize),
       readerIndex_(kCheapPrepend),
@@ -84,7 +83,7 @@ public:
   size_t prependableBytes() const
   { return readerIndex_; }
 
-  ///> get read pos pointer
+  ///> get read pointer
   const char* peek() const
   { return begin() + readerIndex_; }
 

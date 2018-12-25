@@ -154,7 +154,7 @@ void Logger::Impl::formatTime()
         if (strlen(tm_time.tm_zone))
         {
           s_strZone = std::string(tm_time.tm_zone);
-
+          s_strZone += " ";
         }
       }
     }

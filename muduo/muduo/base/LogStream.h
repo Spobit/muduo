@@ -21,28 +21,30 @@ namespace detail
 const int kSmallBuffer = 4000;
 const int kLargeBuffer = 4000*1000;
 
+/**
+ * - FixedBuffer
+ * Mutable size buffer, that is coding standpoint.
+ * Fixed size buffer, that is runtime statdpoint.
+ *
+ * - \m cookie_
+ * fun address, intent using gdb to getting log data after coredump occured.
+ */
 template<int SIZE>
 class FixedBuffer : noncopyable
 {
 private:
-  ///> ???
   void (*cookie_)();
-  ///> buffer pointer
-  char data_[SIZE];
-  ///> writeable pointer
-  char* cur_;
+    // fun address, intent using gdb to getting log data after coredump occured.
+  char data_[SIZE];   // buffer pointer
+  char* cur_;         // writeable pointer
 
 public:
   FixedBuffer()
     : cur_(data_)
-  {
-    setCookie(cookieStart);
-  }
+  { setCookie(cookieStart); }
 
   ~FixedBuffer()
-  {
-    setCookie(cookieEnd);
-  }
+  { setCookie(cookieEnd); }
 
   void append(const char* /*restrict*/ buf, size_t len)
   {
@@ -81,16 +83,21 @@ private:
 
 }  // namespace detail
 
+/**
+ * - LogStream
+ * override << operator
+ */
 class LogStream : noncopyable
 {
 public:
   typedef detail::FixedBuffer<detail::kSmallBuffer> Buffer;
-
 private:
   typedef LogStream self;
+
+private:
   static const int kMaxNumericSize = 32;
-  ///> small fixed buffer
-  Buffer buffer_;
+private:
+  Buffer buffer_; ///> small fixed buffer
 
 public:
   self& operator<<(bool v)

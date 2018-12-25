@@ -14,6 +14,11 @@ namespace muduo
 
 class TimeZone;
 
+/**
+ * - Logger
+ * Logger is a complete log statement what log layout you want. it will write
+ * into log file. it is no more relating with log file.
+ */
 class Logger
 {
 public:
@@ -35,10 +40,10 @@ public:
   class SourceFile
   {
   public:
-    ///> file name without path.
     const char* data_;
-    ///> file name length without null-termination character.
+      // file name without path.
     int size_;
+      // file name length without null-termination character.
 
     template<int N>
     SourceFile(const char (&arr)[N])
@@ -72,10 +77,8 @@ private:
     Timestamp time_;
     LogStream stream_;
     LogLevel level_;
-    ///> __LINE__
-    int line_;
-    ///> __FILE__
-    SourceFile basename_;
+    int line_; // __LINE__
+    SourceFile basename_; // __FILE__ without dir
 
   public:
     Impl(LogLevel level, int old_errno, const SourceFile& file, int line);
