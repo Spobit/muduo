@@ -5,5 +5,6 @@ SUBDIRS += ace \
     pingpong \
     simple \
     idleconnection \
-    maxconnection
+    maxconnection \
+    mytest
 

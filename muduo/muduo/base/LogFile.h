@@ -45,7 +45,7 @@ private:
   int count_; // count of current roll file written time.
 
   std::unique_ptr<MutexLock> mutex_;
-  time_t startOfPeriod_; // the time of create file
+  time_t startOfPeriod_; // period of roll file, here is one day.
   time_t lastRoll_;
   time_t lastFlush_; // last flush of current roll file
   std::unique_ptr<FileUtil::AppendFile> file_;
@@ -68,10 +68,10 @@ public:
 
 private:
   /**
-   * size roll when written bytes is over \m rollSize_.
-   * time roll when written time is over \m checkEveryN_
-   * second flush when time is over \m flushInterval_.
-   * Note: the matching second is not roll.
+   * size roll when written bytes is over \m rollSize_. else:
+   * nothing when count is less than \m checkEveryN_, otherwise:
+   *  1) roll when over \m startOfPeriod_ period.
+   *  2) flush when over \m flushInterval_ seconds.
    */
   void append_unlocked(const char* logline, int len);
   // get a log file name: processName.20181224-122022.hostName.pid.log

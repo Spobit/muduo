@@ -64,29 +64,8 @@ private:
   ConnectionList connections_; ///< client connection list
 };
 
-#include <muduo/base/TimeZone.h>
-#include <muduo/base/LogFile.h>
-using namespace muduo::detail;
-
-LogFile g_logFile("asio_server", 1024*1024*100, false, 3, 0xfffffff);
-
-void logFileOutput(const char* msg, int len)
-{ g_logFile.append(msg, len); }
-
-void logFileFlush()
-{ g_logFile.flush(); }
-
 int main(int argc, char* argv[])
 {
-  Logger::setOutput(logFileOutput);
-  Logger::setFlush(logFileFlush);
-
-  for (int i = 1; i <= 10000; i++)
-  {
-    LOG_INFO << "\"" << Timestamp::now().toFormattedString(true) << "\""
-             << " " << Fmt("%07d", i);
-  }
-
   LOG_INFO << "pid=" << getpid();
 
   if (argc < 2)
