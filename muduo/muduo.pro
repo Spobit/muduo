@@ -1,3 +1,4 @@
 TEMPLATE = subdirs
 SUBDIRS += muduo \
-    examples
+    examples \
+    test
