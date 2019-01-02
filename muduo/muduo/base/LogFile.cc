@@ -15,11 +15,13 @@
 using namespace muduo;
 
 LogFile::LogFile(const string& basename,
+                 const string& storedpath,
                  off_t rollSize,
                  bool threadSafe,
                  int flushInterval,
                  int checkEveryN)
   : basename_(basename),
+    storedpath_(storedpath),
     rollSize_(rollSize),
     flushInterval_(flushInterval),
     checkEveryN_(checkEveryN),
@@ -94,6 +96,15 @@ bool LogFile::rollFile()
 {
   time_t now = 0;
   string filename = getLogFileName(basename_, &now);
+  string fullfilename;
+  if (storedpath_.length())
+  {
+    fullfilename = storedpath_ + "/" + filename;
+  }
+  else
+  {
+    fullfilename = filename;
+  }
   time_t start = now / kRollPerSeconds_ * kRollPerSeconds_;
 
   if (now > lastRoll_)
@@ -101,7 +112,7 @@ bool LogFile::rollFile()
     lastRoll_ = now;
     lastFlush_ = now;
     startOfPeriod_ = start;
-    file_.reset(new FileUtil::AppendFile(filename));
+    file_.reset(new FileUtil::AppendFile(fullfilename));
     return true;
   }
   return false;

@@ -27,10 +27,12 @@ private:
   typedef BufferVector::value_type BufferPtr;
 
 private:
+  const string basename_;
+  const string storedpath_;
+  const off_t rollSize_;
   const int flushInterval_;
     ///> every flushInterval_ seconds flush buffer to file.
-  const string basename_;
-  const off_t rollSize_;
+
   muduo::Condition cond_ /*GUARDED_BY(mutex_)*/;
     // notify thread to write log to file.
 
@@ -61,7 +63,10 @@ private:
 
 public:
 
-  AsyncLogging(const string& basename, off_t rollSize, int flushInterval = 3);
+  AsyncLogging(const string& basename,
+               const string& storedpath,
+               off_t rollSize,
+               int flushInterval = 3);
   ~AsyncLogging() { if (running_) stop(); }
 
   // write log to file

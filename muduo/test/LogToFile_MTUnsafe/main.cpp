@@ -6,8 +6,9 @@
 
 using namespace muduo;
 
-//LogFile g_logFile("LogToFile_MTUnsafe", 1024*1024*100, true);
-LogFile g_logFile("LogToFile_MTUnsafe", 1024*1024*100, false);
+//LogFile g_logFile("LogToFile_MTUnsafe", "", 1024*1024*100, true);
+//LogFile g_logFile("LogToFile_MTUnsafe", "/", 1024*1024*100, false);
+LogFile g_logFile("LogToFile_MTUnsafe", "/home/eit", 1024*1024*100, false);
 
 void logFileOutput(const char* msg, int len)
 { g_logFile.append(msg, len); }

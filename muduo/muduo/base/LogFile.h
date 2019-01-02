@@ -38,6 +38,7 @@ private:
   const string basename_;
     // recommend process name.
     // processName.20181224-122022.hostName.pid.log
+  const string storedpath_;
   const off_t rollSize_; // roll file when written size is greate than it.
   const int flushInterval_; // flush interval.
   const int checkEveryN_;
@@ -52,6 +53,7 @@ private:
 
 public:
   LogFile(const string& basename,
+          const string& storedpath,
           off_t rollSize,
           bool threadSafe = true,
           int flushInterval = 3,
@@ -63,6 +65,7 @@ public:
 
   /**
    * create file when now time has time offset in second relating with last roll.
+   * we can set specified path in the invokation, but must add a member for path.
    */
   bool rollFile();
 

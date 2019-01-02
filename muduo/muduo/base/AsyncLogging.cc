@@ -12,11 +12,13 @@
 using namespace muduo;
 
 AsyncLogging::AsyncLogging(const string& basename,
+                           const string& storedpath,
                            off_t rollSize,
                            int flushInterval)
   : flushInterval_(flushInterval),
     running_(false),
     basename_(basename),
+    storedpath_(storedpath),
     rollSize_(rollSize),
     thread_(std::bind(&AsyncLogging::threadFunc, this), "Logging"),
     latch_(1),
@@ -59,7 +61,7 @@ void AsyncLogging::threadFunc()
 {
   assert(running_ == true);
   latch_.countDown();
-  LogFile output(basename_, rollSize_, false);
+  LogFile output(basename_, storedpath_, rollSize_, false);
   BufferPtr newBuffer1(new Buffer);
   BufferPtr newBuffer2(new Buffer);
   newBuffer1->bzero();

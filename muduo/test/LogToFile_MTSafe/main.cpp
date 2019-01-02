@@ -6,7 +6,8 @@
 
 using namespace muduo;
 
-AsyncLogging g_asyncLog("mytest", 1024*1024*100);
+//AsyncLogging g_asyncLog("mytest", "/home/eit", 1024*1024*100);
+AsyncLogging g_asyncLog("mytest", "", 1024*1024*100);
 const int g_iLoop = 1000*1000;
 
 void logFileOutput(const char* msg, int len)
