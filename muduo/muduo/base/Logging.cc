@@ -39,6 +39,11 @@ __thread char t_errnobuf[512];
 __thread char t_time[64];
 __thread time_t t_lastSecond;
 
+Logger::LogLevel g_logLevel = initLogLevel();
+Logger::OutputFunc g_output = defaultOutput;
+Logger::FlushFunc g_flush = defaultFlush;
+TimeZone g_logTimeZone;
+
 const char* strerror_tl(int savedErrno)
 {
   return strerror_r(savedErrno, t_errnobuf, sizeof t_errnobuf);
@@ -53,8 +58,6 @@ Logger::LogLevel initLogLevel()
   else
     return Logger::INFO;
 }
-
-Logger::LogLevel g_logLevel = initLogLevel();
 
 const char* LogLevelName[Logger::NUM_LOG_LEVELS] =
 {
@@ -104,10 +107,6 @@ void defaultFlush()
 {
   fflush(stdout);
 }
-
-Logger::OutputFunc g_output = defaultOutput;
-Logger::FlushFunc g_flush = defaultFlush;
-TimeZone g_logTimeZone;
 
 }  // namespace muduo
 

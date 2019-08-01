@@ -131,6 +131,7 @@ namespace muduo
  *     eg: resource: pthread_mutex_t    bind object: MutexLock.
  *     eg: resource: MutexLock          bind object: MutexLockGuard.
  */
+
 class /*CAPABILITY("mutex")*/ MutexLock : noncopyable
 {
   friend class Condition;

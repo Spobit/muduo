@@ -50,7 +50,7 @@ class TimerQueue;
 
 /** class EventLoop
  * - Brief:
- *    EventLoop indirectly manage socketfd & eventfd & timerfd, and it has
+ *    EventLoop manage socketfd & eventfd & timerfd indirectly, and it has
  *    poll function.
  *    so, to be understand it.
  *    pendingFunctors_ and runInLoop (eventfd evnets) make it can do anyway

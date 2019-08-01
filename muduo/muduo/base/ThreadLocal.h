@@ -15,9 +15,9 @@ namespace muduo
 {
 /**
  * - Brief:
- *    create thread local variable by pthread_key_create(), then,
- *    other thread who can access the key who create by pthread_key_create()
- *    can access the variable.
+ *    create thread local variable by pthread_key_create(), then, other thread 
+ *    who can access the key who create by pthread_key_create() can access the 
+ *    variable.
  *
  * - Functions:
  *    pthread_key_create()

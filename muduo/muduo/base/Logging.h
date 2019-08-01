@@ -40,10 +40,8 @@ public:
   class SourceFile
   {
   public:
-    const char* data_;
-      // file name without path.
-    int size_;
-      // file name length without null-termination character.
+    const char* data_; // file name without path.
+    int size_; // file name length without null-termination character.
 
     template<int N>
     SourceFile(const char (&arr)[N])
